@@ -1,40 +1,12 @@
 let box1 = document.querySelector(".box1");
 let container = document.querySelector(".box");
-let audio = document.getElementById("song");
-let playBtn = document.getElementById("playBtn");
+let count = document.querySelector(".count");
+const audio = new Audio("maro-jump-sound.mp3")
 
-let audioContext = new AudioContext();
-let analyser = audioContext.createAnalyser();
-let source = audioContext.createMediaElementSource(audio);
 
-source.connect(analyser);
-analyser.connect(audioContext.destination);
-
-analyser.fftSize = 256;
-
-let bufferLength = analyser.frequencyBinCount;
-let dataArray = new Uint8Array(bufferLength);
-
-playBtn.addEventListener("click", () => {
-    audioContext.resume();
+box1.addEventListener("click", function() {
     audio.play();
-    detectBeat();
-});
-
-function detectBeat() {
-    requestAnimationFrame(detectBeat);
-
-    analyser.getByteFrequencyData(dataArray);
-
-    let average = dataArray.reduce((a, b) => a + b) / bufferLength;
-
-    // If sound is loud enough → treat as beat
-    if (average > 160) {
-        moveBoxRandom();
-    }
-}
-
-function moveBoxRandom() {
+    let current = Number(count.textContent);
     let boxWidth = container.clientWidth;
     let boxHeight = container.clientHeight;
 
@@ -46,4 +18,5 @@ function moveBoxRandom() {
 
     box1.style.left = randomLeft + "px";
     box1.style.top = randomTop + "px";
-}
+    count.textContent = current+1;
+})

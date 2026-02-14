@@ -1,0 +1,33 @@
+body {
+    background-color: aquamarine;
+}
+
+.box{
+    background-color: whitesmoke;
+    display: flex;
+    border: 3px solid black;
+    align-self: center;
+    justify-content: flex-start;
+    width: 400px;
+    height: 600px;
+    margin: 100px auto;
+    border-radius: 15px;
+    position: relative;
+}
+
+.heading{
+    margin-top: 6px;
+    margin-left: 8px;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+.box1{
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    top: 90px;
+    left: 20px;
+    background-color: rgb(255, 0, 55);
+    border: 2px solid black;
+    border-radius: 5px;
+}

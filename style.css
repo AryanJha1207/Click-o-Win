@@ -213,7 +213,51 @@ body {
     content: "💣";
 }
 
-/* State: VANISHED (for teleport) */
-.box1.vanished {
-    display: none;
+/* ... existing styles ... */
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .box {
+        width: 90vw;
+        height: 60vh;
+        border-width: 2px;
+    }
+
+    .box1 {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+
+    .game-info {
+        font-size: 1.2rem;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .progress-container {
+        width: 80vw;
+        height: 20px;
+    }
+
+    .popup {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .popup h2 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .box1 {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .game-info {
+        font-size: 1rem;
+    }
 }

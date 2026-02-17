@@ -82,8 +82,10 @@ window.nextLevel = function () {
 function getRandomPosition(element) {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    const elWidth = 60;
-    const elHeight = 60;
+
+    // Dynamic size calculation (was hardcoded 60)
+    const elWidth = element.offsetWidth || 60;
+    const elHeight = element.offsetHeight || 60;
 
     const maxLeft = containerWidth - elWidth;
     const maxTop = containerHeight - elHeight;

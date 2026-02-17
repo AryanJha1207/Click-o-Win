@@ -1,7 +1,7 @@
 const target = document.querySelector("#target");
 const container = document.querySelector(".box");
 const scoreDisplay = document.querySelector(".count");
-const targetScoreDisplay = document.querySelector("#target-score"); // New Element
+const targetScoreDisplay = document.querySelector("#target-score");
 const levelDisplay = document.querySelector("#level-count");
 const progressBar = document.querySelector("#score-bar");
 
@@ -14,7 +14,6 @@ const nextLevelDisplay = document.querySelector("#next-level-display");
 
 let level = 1;
 let score = 0;
-// const pointsPerLevel = 5; // Removed constant
 const maxLevels = 10;
 let baseStayTime = 2000; // Level 1 stay time
 const timeDecreasePerLevel = 300; // Decrease by 300ms per level (Smoother curve)
@@ -26,6 +25,10 @@ let isBomb = false;
 
 function getPointsNeeded() {
     return level * 5;
+}
+
+function getCurrentSpeed() {
+    return Math.max(minStayTime, baseStayTime - ((level - 1) * timeDecreasePerLevel));
 }
 
 // Initialize
@@ -65,7 +68,6 @@ function hidePopups() {
     document.querySelectorAll(".popup").forEach(p => p.classList.add("hidden"));
 }
 
-// Global functions for buttons
 window.restartGame = function () {
     hidePopups();
     initGame();
@@ -83,7 +85,6 @@ function getRandomPosition(element) {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
 
-    // Dynamic size calculation (was hardcoded 60)
     const elWidth = element.offsetWidth || 60;
     const elHeight = element.offsetHeight || 60;
 
@@ -97,8 +98,6 @@ function getRandomPosition(element) {
 }
 
 function setSpawnState() {
-    // 30% chance to be a bomb
-    // But ONLY if we haven't just started (give a freebie? nah)
     isBomb = Math.random() < 0.3;
 
     if (isBomb) {
@@ -110,46 +109,47 @@ function setSpawnState() {
     }
 }
 
+// Core Logic: Spawn a new target at a random spot
+function spawnNewTarget() {
+    if (isPaused) return;
+
+    // 1. Move to new spot
+    const pos = getRandomPosition(target);
+    target.style.left = pos.left + "px";
+    target.style.top = pos.top + "px";
+
+    // 2. Set State (Bomb or Box)
+    setSpawnState();
+
+    // 3. Reappear
+    target.classList.remove("vanished");
+
+    // 4. Schedule next auto-move (standard teleport cycle)
+    scheduleNextMove();
+}
+
+// Core Logic: Vanish cycle (Auto-move)
 function teleport() {
     if (isPaused) return;
 
     // 1. Vanish
     target.classList.add("vanished");
 
-    // 2. Wait a tiny bit (simulating vanish time)
+    // 2. Wait tiny bit (vanish animation), then spawn
     setTimeout(() => {
-        if (isPaused) return;
-
-        // 3. Move to new spot
-        const pos = getRandomPosition(target);
-        target.style.left = pos.left + "px";
-        target.style.top = pos.top + "px";
-
-        // 4. Set State (Bomb or Box)
-        setSpawnState();
-
-        // 5. Reappear
-        target.classList.remove("vanished");
-
-        // 6. Schedule next teleport
-        scheduleNextMove();
-
-    }, 200); // 200ms vanish time
+        spawnNewTarget();
+    }, 200);
 }
 
 function scheduleNextMove() {
     clearTimeout(gameLoopTimeout);
-
-    // Calculate speed
-    // L1: 2000, L2: 1700, L3: 1400... Floor 500
-    let stayDuration = Math.max(minStayTime, baseStayTime - ((level - 1) * timeDecreasePerLevel));
-
+    let stayDuration = getCurrentSpeed();
     gameLoopTimeout = setTimeout(teleport, stayDuration);
 }
 
 function startLevel() {
     console.log(`Starting Level ${level}`);
-    teleport();
+    spawnNewTarget(); // Start immediately
 }
 
 // Event Listener
@@ -158,18 +158,24 @@ target.addEventListener("click", (e) => {
     if (isPaused) return;
 
     if (isBomb) {
-        // BAM!
         showPopup(gameOverPopup);
     } else {
         score++;
         updateDisplay();
 
-        // Immediate teleport on success
-        clearTimeout(gameLoopTimeout);
-        teleport();
+        // --- CHANGED LOGIC START ---
+        // Instead of immediate teleport/spawn, we wait for the full level duration
+        clearTimeout(gameLoopTimeout); // Cancel auto-move
+        target.classList.add("vanished"); // Hide immediately
+
+        // Wait for level duration, THEN spawn new target
+        let respawnDelay = getCurrentSpeed();
+        gameLoopTimeout = setTimeout(() => {
+            spawnNewTarget();
+        }, respawnDelay);
+        // --- CHANGED LOGIC END ---
 
         if (score >= getPointsNeeded()) {
-            // Level Complete
             if (level >= maxLevels) {
                 showPopup(winPopup);
             } else {
@@ -181,5 +187,5 @@ target.addEventListener("click", (e) => {
 });
 
 // Start the game
-hidePopups(); // Ensure hidden on load
+hidePopups();
 initGame();

@@ -1,16 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Click Count Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="box">
-        <h2 class="heading">Score: <span class="count">0</span></h2>
-        <div class="box1"></div>
+    <div class="game-info">
+        <h2 class="level">Level: <span id="level-count">1</span></h2>
+        <div class="progress-container">
+            <div class="progress-bar" id="score-bar"></div>
+        </div>
+        <h2 class="heading">Score: <span class="count">0</span>/<span id="target-score">5</span></h2>
     </div>
+
+    <div class="box">
+        <div class="box1" id="target" title="Click me!"></div>
+    </div>
+
+    <!-- Popups -->
+    <div id="popup-overlay" class="hidden">
+        <div id="game-over-popup" class="popup hidden">
+            <h2>GAME OVER</h2>
+            <p>You hit a bomb!</p>
+            <button onclick="restartGame()">Try Again</button>
+        </div>
+        <div id="level-up-popup" class="popup hidden">
+            <h2>LEVEL COMPLETE!</h2>
+            <p>Great job! Get ready for Level <span id="next-level-display">2</span></p>
+            <button onclick="nextLevel()">Next Level</button>
+        </div>
+        <div id="win-popup" class="popup hidden">
+            <h2>YOU WIN!</h2>
+            <p>You conquered all 10 levels!</p>
+            <button onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
-<script src="script.js"></script>
+
 </html>

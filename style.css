@@ -6,11 +6,17 @@
 
 body {
     background: radial-gradient(circle at center, #1a0b2e 0%, #16213e 50%, #000000 100%);
-    height: 100vh;
+    height: 100dvh;
+    /* Dynamic Height for mobile bars */
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* Move content up */
+    padding-top: 30px;
+    /* Space from top */
+    padding-bottom: 80px;
+    /* Space from bottom utility bars */
     font-family: 'Orbitron', 'Impact', sans-serif;
     color: #fff;
     overflow: hidden;
@@ -18,12 +24,29 @@ body {
 
 .game-info {
     display: flex;
-    gap: 20px;
+    gap: 15px;
+    /* Increased separation */
     margin-bottom: 20px;
-    font-size: 1.2rem;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 25px;
+    /* Significant safe zone from edges */
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
+    /* Single line only */
+    white-space: nowrap;
+    /* Prevent text wrapping */
     text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
     z-index: 10;
+}
+
+.game-info h2 {
+    margin: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* Text takes priority */
+    font-size: clamp(0.8rem, 4vw, 1.4rem);
 }
 
 .box {
@@ -81,15 +104,19 @@ body {
 
 /* Progress Bar */
 .progress-container {
-    width: 300px;
-    height: 25px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 50px;
-    border: 2px solid #333;
+    flex: 1;
+    /* Take remaining space */
+    min-width: 20px;
+    /* Allowed to shrink very small */
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
-    margin: 0 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: 0 5px;
+    /* Tiny margin */
     position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
 }
 
@@ -231,6 +258,209 @@ body {
     }
 }
 
+/* --- Start Screen Styles --- */
+#start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #050505;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Transition set for smooth zoom/fade of content inside, not the screen itself for warp */
+    transition: opacity 0.5s ease;
+}
+
+#start-screen.warp-out {
+    animation: warp 0.8s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes warp {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    100% {
+        transform: scale(10);
+        opacity: 0;
+        filter: blur(10px);
+    }
+}
+
+#grid-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.start-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 40px;
+    border: 4px solid #fff;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5), inset 0 0 20px rgba(0, 255, 136, 0.2);
+    backdrop-filter: blur(5px);
+    transition: opacity 0.5s ease;
+    opacity: 1;
+    max-width: 80%;
+}
+
+.intro-text {
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+    line-height: 1.8;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.intro-text .highlight {
+    color: #00ff88;
+    font-size: 1.1rem;
+    text-shadow: 0 0 5px #00ff88;
+}
+
+.intro-text .danger {
+    color: #ff0000;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.intro-text .legendary {
+    color: gold;
+    text-shadow: 0 0 5px gold, 2px 2px 0 #b8860b;
+    font-size: 1.5rem;
+    display: block;
+    margin-top: 15px;
+}
+
+.game-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: #fff;
+    margin-bottom: 40px;
+    text-shadow:
+        4px 4px 0 #00ff88,
+        -2px -2px 0 #ff0055;
+    animation: glitch 2s infinite;
+}
+
+#play-btn {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    padding: 20px 40px;
+    background: #ff0055;
+    color: #fff;
+    border: 4px solid #fff;
+    cursor: pointer;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-transform: uppercase;
+}
+
+#play-btn:hover {
+    transform: translate(4px, 4px);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+    background: #ff2277;
+}
+
+#play-btn:active {
+    transform: translate(8px, 8px);
+    box-shadow: none;
+}
+
+/* Background Animation Elements */
+.grid-item {
+    position: absolute;
+    width: 39px;
+    /* Fit in 40px grid comfortably */
+    height: 39px;
+    opacity: 0;
+    animation: flash 1.5s ease-in-out forwards;
+}
+
+.grid-item.block {
+    background: rgba(0, 255, 255, 0.6);
+    box-shadow: 0 0 10px cyan;
+}
+
+.grid-item.bomb {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    filter: drop-shadow(0 0 5px red);
+}
+
+.grid-item.bomb::after {
+    content: "💣";
+}
+
+@keyframes flash {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    20% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    80% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-2px, 2px);
+    }
+
+    40% {
+        transform: translate(-2px, -2px);
+    }
+
+    60% {
+        transform: translate(2px, 2px);
+    }
+
+    80% {
+        transform: translate(2px, -2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}
+
 /* Responsive Design */
 
 /* Tablets & Large Phones (Portrait) */
@@ -253,11 +483,11 @@ body {
 
     .game-info {
         font-size: 1.1rem;
-        gap: 15px;
+        gap: 10px;
     }
 
     .progress-container {
-        width: 70vw;
+        /* width handled by flex */
         height: 15px;
     }
 }
@@ -280,10 +510,19 @@ body {
     }
 
     .game-info {
-        font-size: 1rem;
-        margin-bottom: 15px;
-        flex-direction: column;
-        gap: 10px;
+        width: 100%;
+        padding: 0 15px;
+        /* Ensure edges are safe */
+        margin-bottom: 10px;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        /* FORCE single line */
+        justify-content: space-between;
+        gap: 5px;
+    }
+
+    .game-info h2 {
+        font-size: clamp(0.8rem, 3.5vw, 1.2rem);
     }
 
     .popup {
@@ -303,21 +542,34 @@ body {
 @media (max-height: 500px) and (orientation: landscape) {
     body {
         flex-direction: row;
-        gap: 20px;
+        gap: 10px;
+        /* Reduced gap */
+        justify-content: center;
+        padding: 0;
     }
 
     .game-info {
         flex-direction: column;
         margin-bottom: 0;
-        align-items: flex-start;
-        font-size: 1rem;
-        height: 100%;
+        align-items: center;
+        /* Center text */
         justify-content: center;
+        width: auto;
+        /* Shrink to content */
+        height: auto;
+        gap: 10px;
+    }
+
+    .game-info h2 {
+        font-size: clamp(0.7rem, 4vh, 1.1rem);
+        /* Scale with height */
     }
 
     .progress-container {
-        width: 20px;
+        width: 15px;
+        /* Thinner */
         height: 60vh;
+        margin: 0;
         /* Vertical progress bar */
     }
 

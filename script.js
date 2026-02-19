@@ -16,6 +16,22 @@ const videoPopup = document.querySelector("#video-popup");
 const mysteryBoxBtn = document.querySelector("#mystery-box");
 const rickRollFrame = document.querySelector("#rickroll-frame");
 
+// --- AUDIO SYSTEM ---
+// REPLACE THESE URLS WITH YOUR ACTUAL AUDIO FILES
+const bgMusic = new Audio('public/media/Retro-Game.mp3'); // Stick your background music URL here
+bgMusic.loop = true;
+bgMusic.volume = 0.4; // 40% volume
+
+const clickSound = new Audio('public/media/coin-mario.mp3'); // Sound when clicking a valid box
+const bombSound = new Audio('public/media/bomb.mp3'); // Sound when hitting a bomb
+const levelUpSound = new Audio('public/media/WinSoundRoblox.mp3'); // Sound when leveling up
+const startSound = new Audio('public/media/XPerror.mp3'); // Sound when clicking Play Now
+
+// Start Screen Elements
+const startScreen = document.querySelector("#start-screen");
+const playBtn = document.querySelector("#play-btn");
+const gridBg = document.querySelector("#grid-background");
+
 let level = 1;
 let score = 0;
 const maxLevels = 10;
@@ -24,9 +40,10 @@ const timeDecreasePerLevel = 300; // Decrease by 300ms per level (Smoother curve
 const minStayTime = 500; // Minimum floor
 
 let gameLoopTimeout;
-let isPaused = false;
+let isPaused = true; // Started as paused for start screen
 let lastPos = { left: 0, top: 0 }; // Track last position
 let isBomb = false;
+let bgAnimationInterval;
 
 function getPointsNeeded() {
     return level * 5;
@@ -35,6 +52,123 @@ function getPointsNeeded() {
 function getCurrentSpeed() {
     return Math.max(minStayTime, baseStayTime - ((level - 1) * timeDecreasePerLevel));
 }
+
+// Background Animation for Start Screen
+function animateBackground() {
+    bgAnimationInterval = setInterval(() => {
+        const cols = Math.ceil(window.innerWidth / 40);
+        const rows = Math.ceil(window.innerHeight / 40);
+
+        const rCol = Math.floor(Math.random() * cols);
+        const rRow = Math.floor(Math.random() * rows);
+
+        const el = document.createElement("div");
+        el.classList.add("grid-item");
+
+        // 20% Bomb, 80% Color Block
+        if (Math.random() < 0.2) {
+            el.classList.add("bomb");
+        } else {
+            el.classList.add("block");
+            // Random Hue for blocks
+            const hue = Math.floor(Math.random() * 360);
+            el.style.background = `hsla(${hue}, 100%, 50%, 0.5)`;
+            el.style.boxShadow = `0 0 10px hsla(${hue}, 100%, 50%, 0.8)`;
+        }
+
+        el.style.left = (rCol * 40) + "px";
+        el.style.top = (rRow * 40) + "px";
+
+        gridBg.appendChild(el);
+
+        // Cleanup after animation (1.5s)
+        setTimeout(() => {
+            el.remove();
+        }, 1500);
+
+    }, 100); // New block every 100ms
+}
+
+// Try to play BGM immediately (handle autoplay policy)
+function tryPlayBGM() {
+    bgMusic.play().catch(() => {
+        // If blocked, wait for first interaction
+        const startBGM = () => {
+            bgMusic.play();
+            document.removeEventListener('click', startBGM);
+            document.removeEventListener('keydown', startBGM);
+        };
+        document.addEventListener('click', startBGM);
+        document.addEventListener('keydown', startBGM);
+    });
+}
+tryPlayBGM();
+
+// Play Button Logic
+playBtn.addEventListener("click", () => {
+    // Play Start Sound
+    startSound.currentTime = 0;
+    startSound.play().catch(e => { });
+
+    // Ensure BGM is playing
+    bgMusic.play().catch(e => { });
+
+    const content = document.querySelector(".start-content");
+
+    // Step 1: Fade out Title
+    content.style.opacity = "0";
+
+    setTimeout(() => {
+        // Step 2: Show Welcome & Rules
+        content.innerHTML = `
+            <div class="intro-text">
+                <span style="color: cyan; font-size: 1.5rem;">HOW TO PLAY:</span><br><br>
+                Click on <span class="highlight">GREEN</span> Box to Score.<br><br>
+                Avoid <span class="danger">RED</span> Boxes<br>
+                 (Resets to Level 1)
+            </div>
+        `;
+        content.style.opacity = "1";
+
+        // Wait for user to read
+        setTimeout(() => {
+            // Step 3: Fade out Rules
+            content.style.opacity = "0";
+
+            setTimeout(() => {
+                // Step 4: Show Prize Teaser
+                content.innerHTML = `
+                    <div class="intro-text">
+                        Beat <span class="highlight">LEVEL 10</span><br>
+                        to unlock a<br>
+                        <span class="legendary">LEGENDARY PRIZE</span>
+                    </div>
+                `;
+                content.style.opacity = "1";
+
+                // Wait for impact
+                setTimeout(() => {
+                    // Step 5: Warp Shutdown
+                    // Stop BG animation now
+                    clearInterval(bgAnimationInterval);
+                    gridBg.innerHTML = '';
+
+                    // Trigger Warp Transition
+                    startScreen.classList.add("warp-out");
+
+                    setTimeout(() => {
+                        startScreen.classList.add("hidden");
+                        initGame();
+                    }, 800); // 0.8s Warp animation
+
+                }, 3500); // Read time for prize
+
+            }, 500); // Fade transition
+
+        }, 5500); // Increased read time for rules (more text)
+
+    }, 500); // Fade transition
+});
 
 // Initialize
 function initGame() {
@@ -78,6 +212,9 @@ function hidePopups() {
 
 window.restartGame = function () {
     hidePopups();
+    // Restart Music
+    bgMusic.currentTime = 0;
+    bgMusic.play().catch(e => { });
     initGame();
 }
 
@@ -91,6 +228,9 @@ window.nextLevel = function () {
 
 // Mystery Box Click Event
 mysteryBoxBtn.addEventListener("click", () => {
+    // Stop Game Music
+    bgMusic.pause();
+
     // Hide mystery box popup
     mysteryBoxPopup.classList.add("hidden");
     // Show video popup
@@ -193,8 +333,15 @@ target.addEventListener("click", (e) => {
     if (isPaused) return;
 
     if (isBomb) {
+        bombSound.play().catch(e => { });
+        bgMusic.pause(); // Stop music on death
+        bgMusic.currentTime = 0;
         showPopup(gameOverPopup);
     } else {
+        // Success Click
+        clickSound.currentTime = 0; // Rewind to start for rapid clicks
+        clickSound.play().catch(e => { });
+
         score++;
         updateDisplay();
 
@@ -212,9 +359,11 @@ target.addEventListener("click", (e) => {
 
         if (score >= getPointsNeeded()) {
             if (level >= maxLevels) {
+                bgMusic.pause(); // Stop music on win
                 // Show Mystery Box instead of instant win
                 showPopup(mysteryBoxPopup);
             } else {
+                levelUpSound.play().catch(e => { });
                 nextLevelDisplay.textContent = level + 1;
                 showPopup(levelUpPopup);
             }
@@ -222,6 +371,6 @@ target.addEventListener("click", (e) => {
     }
 });
 
-// Start the game
-hidePopups();
-initGame();
+// Start Animation immediately
+animateBackground();
+tryPlayBGM(); // Start music (or wait for click)

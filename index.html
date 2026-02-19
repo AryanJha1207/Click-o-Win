@@ -23,20 +23,41 @@
 
     <!-- Popups -->
     <div id="popup-overlay" class="hidden">
+        <!-- Game Over -->
         <div id="game-over-popup" class="popup hidden">
-            <h2>GAME OVER</h2>
+            <h2>Game Over!</h2>
             <p>You hit a bomb!</p>
             <button onclick="restartGame()">Try Again</button>
         </div>
+
+        <!-- Level Up -->
         <div id="level-up-popup" class="popup hidden">
-            <h2>LEVEL COMPLETE!</h2>
-            <p>Great job! Get ready for Level <span id="next-level-display">2</span></p>
+            <h2>Level Complete!</h2>
+            <p>Ready for Level <span id="next-level-display">2</span>?</p>
             <button onclick="nextLevel()">Next Level</button>
         </div>
+
+        <!-- Win (Replaced by Mystery Box Logic in JS, but keeping structure just in case) -->
         <div id="win-popup" class="popup hidden">
-            <h2>YOU WIN!</h2>
-            <p>You conquered all 10 levels!</p>
+            <h2>You Won!</h2>
+            <p>All levels completed!</p>
             <button onclick="restartGame()">Play Again</button>
+        </div>
+
+        <!-- Mystery Box Reward -->
+        <div id="mystery-box-popup" class="popup hidden">
+            <h2>Congratulation!</h2>
+            <p>You have unlocked a Legendary Prize!</p>
+            <div id="mystery-box" class="mystery-box-anim">🎁</div>
+            <p style="font-size: 0.8rem; margin-top: 10px;">Click to Open</p>
+        </div>
+
+        <!-- Video Reward -->
+        <div id="video-popup" class="popup hidden" style="background: black; padding: 10px;">
+            <iframe id="rickroll-frame" width="100%" height="315" src="" title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+            <button onclick="restartGame()" style="margin-top: 10px;">Close & Restart</button>
         </div>
     </div>
 

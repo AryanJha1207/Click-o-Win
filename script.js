@@ -11,6 +11,10 @@ const gameOverPopup = document.querySelector("#game-over-popup");
 const levelUpPopup = document.querySelector("#level-up-popup");
 const winPopup = document.querySelector("#win-popup");
 const nextLevelDisplay = document.querySelector("#next-level-display");
+const mysteryBoxPopup = document.querySelector("#mystery-box-popup");
+const videoPopup = document.querySelector("#video-popup");
+const mysteryBoxBtn = document.querySelector("#mystery-box");
+const rickRollFrame = document.querySelector("#rickroll-frame");
 
 let level = 1;
 let score = 0;
@@ -21,6 +25,7 @@ const minStayTime = 500; // Minimum floor
 
 let gameLoopTimeout;
 let isPaused = false;
+let lastPos = { left: 0, top: 0 }; // Track last position
 let isBomb = false;
 
 function getPointsNeeded() {
@@ -36,6 +41,7 @@ function initGame() {
     level = 1;
     score = 0;
     isPaused = false;
+    lastPos = { left: 0, top: 0 }; // Reset
     updateDisplay();
     startLevel();
 }
@@ -66,6 +72,8 @@ function hidePopups() {
     isPaused = false;
     overlay.classList.add("hidden");
     document.querySelectorAll(".popup").forEach(p => p.classList.add("hidden"));
+    // Stop video if any
+    rickRollFrame.src = "";
 }
 
 window.restartGame = function () {
@@ -81,6 +89,16 @@ window.nextLevel = function () {
     startLevel();
 }
 
+// Mystery Box Click Event
+mysteryBoxBtn.addEventListener("click", () => {
+    // Hide mystery box popup
+    mysteryBoxPopup.classList.add("hidden");
+    // Show video popup
+    videoPopup.classList.remove("hidden");
+    // Start Rick Roll
+    rickRollFrame.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+});
+
 function getRandomPosition(element) {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
@@ -91,8 +109,22 @@ function getRandomPosition(element) {
     const maxLeft = containerWidth - elWidth;
     const maxTop = containerHeight - elHeight;
 
-    const randomLeft = Math.floor(Math.random() * maxLeft);
-    const randomTop = Math.floor(Math.random() * maxTop);
+    let randomLeft, randomTop;
+    let attempts = 0;
+    const minDistance = 200; // Force movement of at least 200px
+
+    const currentLeft = lastPos.left;
+    const currentTop = lastPos.top;
+
+    do {
+        randomLeft = Math.floor(Math.random() * maxLeft);
+        randomTop = Math.floor(Math.random() * maxTop);
+
+        const dist = Math.sqrt(Math.pow(randomLeft - currentLeft, 2) + Math.pow(randomTop - currentTop, 2));
+
+        if (dist > minDistance) break;
+        attempts++;
+    } while (attempts < 50);
 
     return { left: randomLeft, top: randomTop };
 }
@@ -117,6 +149,9 @@ function spawnNewTarget() {
     const pos = getRandomPosition(target);
     target.style.left = pos.left + "px";
     target.style.top = pos.top + "px";
+
+    // Update tracking
+    lastPos = pos;
 
     // 2. Set State (Bomb or Box)
     setSpawnState();
@@ -177,7 +212,8 @@ target.addEventListener("click", (e) => {
 
         if (score >= getPointsNeeded()) {
             if (level >= maxLevels) {
-                showPopup(winPopup);
+                // Show Mystery Box instead of instant win
+                showPopup(mysteryBoxPopup);
             } else {
                 nextLevelDisplay.textContent = level + 1;
                 showPopup(levelUpPopup);

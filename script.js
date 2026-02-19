@@ -55,7 +55,7 @@ function updateDisplay() {
 
     // Progress Bar Logic
     const progress = (score / pointsNeeded) * 100;
-    progressBar.style.width = `${progress}%`;
+    progressBar.style.setProperty('--progress', `${progress}%`);
 }
 
 function showPopup(popupElement) {

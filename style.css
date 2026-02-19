@@ -94,14 +94,15 @@ body {
 }
 
 .progress-bar {
-    width: 0%;
+    width: var(--progress, 0%);
     height: 100%;
-    background: linear-gradient(90deg, #00ff88, #00ffff, #ff0088);
+    /* Soothing Purple-Pink Flow */
+    background: linear-gradient(90deg, #a18cd1, #fbc2eb, #a18cd1);
     background-size: 200% 100%;
-    box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 50px;
-    animation: flow 2s linear infinite;
+    box-shadow: 0 0 10px rgba(251, 194, 235, 0.5);
+    transition: width 0.4s ease-out, height 0.4s ease-out;
+    border-radius: 20px;
+    animation: flow 3s linear infinite;
 }
 
 @keyframes flow {
@@ -231,48 +232,143 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
+
+/* Tablets & Large Phones (Portrait) */
+@media (max-width: 768px) {
     .box {
         width: 90vw;
-        height: 60vh;
+        height: 65vh;
         border-width: 2px;
+    }
+
+    .box1 {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+
+    .box1.is-bomb::after {
+        font-size: 20px;
+    }
+
+    .game-info {
+        font-size: 1.1rem;
+        gap: 15px;
+    }
+
+    .progress-container {
+        width: 70vw;
+        height: 15px;
+    }
+}
+
+/* Mobile Portrait (Small Screens) */
+@media (max-width: 480px) {
+    .box {
+        width: 95vw;
+        height: 60vh;
     }
 
     .box1 {
         width: 50px;
         height: 50px;
-        font-size: 24px;
-    }
-
-    .game-info {
-        font-size: 1.2rem;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .progress-container {
-        width: 80vw;
-        height: 20px;
-    }
-
-    .popup {
-        width: 95%;
-        padding: 20px;
-    }
-
-    .popup h2 {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .box1 {
-        width: 40px;
-        height: 40px;
         font-size: 20px;
+    }
+
+    .box1.is-bomb::after {
+        font-size: 18px;
     }
 
     .game-info {
         font-size: 1rem;
+        margin-bottom: 15px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .popup {
+        padding: 20px;
+    }
+
+    .popup h2 {
+        font-size: 1.5rem;
+    }
+
+    .mystery-box-anim {
+        font-size: 60px;
+    }
+}
+
+/* Mobile Landscape (Android/iPhone sideways) */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .game-info {
+        flex-direction: column;
+        margin-bottom: 0;
+        align-items: flex-start;
+        font-size: 1rem;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .progress-container {
+        width: 20px;
+        height: 60vh;
+        /* Vertical progress bar */
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: var(--progress, 0%);
+        /* Start empty */
+        transition: height 0.3s ease;
+        background: linear-gradient(0deg, #a18cd1, #fbc2eb, #a18cd1);
+        background-size: 100% 200%;
+    }
+
+    .box {
+        width: 80vh;
+        /* Square-ish based on height */
+        height: 85vh;
+        margin: 0;
+    }
+
+    .box1 {
+        width: 12vh;
+        height: 12vh;
+        font-size: 5vh;
+    }
+
+    .box1.is-bomb::after {
+        font-size: 4vh;
+    }
+
+    .popup {
+        width: 60%;
+        padding: 15px;
+    }
+
+    .popup h2 {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .popup p {
+        margin-bottom: 15px;
+    }
+
+    /* Adjust vertical progress bar animation */
+    @keyframes flow {
+        0% {
+            background-position: 0 100%;
+        }
+
+        100% {
+            background-position: 0 -100%;
+        }
     }
 }

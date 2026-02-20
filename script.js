@@ -54,39 +54,74 @@ function getCurrentSpeed() {
 }
 
 // Background Animation for Start Screen
-function animateBackground() {
-    bgAnimationInterval = setInterval(() => {
-        const cols = Math.ceil(window.innerWidth / 40);
-        const rows = Math.ceil(window.innerHeight / 40);
+let activeParticles = []; // Track active grid positions
 
-        const rCol = Math.floor(Math.random() * cols);
-        const rRow = Math.floor(Math.random() * rows);
+function animateBackground() {
+    const GRID_SIZE = 50; // Matches CSS background-size
+
+    bgAnimationInterval = setInterval(() => {
+        const cols = Math.ceil(window.innerWidth / GRID_SIZE);
+        const rows = Math.ceil(window.innerHeight / GRID_SIZE);
+
+        // Try up to 5 times to find a valid spot
+        let rCol, rRow, isValid = false;
+
+        for (let i = 0; i < 5; i++) {
+            rCol = Math.floor(Math.random() * cols);
+            rRow = Math.floor(Math.random() * rows);
+
+            // Check distance against all active particles
+            // Ensure no active particle is within 4 blocks
+            const tooClose = activeParticles.some(p => {
+                const dx = p.c - rCol;
+                const dy = p.r - rRow;
+                return Math.sqrt(dx * dx + dy * dy) < 4;
+            });
+
+            if (!tooClose) {
+                isValid = true;
+                break;
+            }
+        }
+
+        if (!isValid) return; // Skip this tick if crowded
+
+        // Add to active list
+        const particleId = Date.now() + Math.random();
+        activeParticles.push({ c: rCol, r: rRow, id: particleId });
 
         const el = document.createElement("div");
         el.classList.add("grid-item");
 
-        // 20% Bomb, 80% Color Block
+        // 20% Bomb, 80% Green Target Box
         if (Math.random() < 0.2) {
             el.classList.add("bomb");
+            // Match Game Bomb Style
+            el.style.background = "radial-gradient(circle, #ff0000 40%, #000 90%)";
+            el.style.border = "2px solid #ff4444";
+            el.style.boxShadow = "0 0 15px #ff0000";
+            el.style.borderRadius = "50%";
         } else {
             el.classList.add("block");
-            // Random Hue for blocks
-            const hue = Math.floor(Math.random() * 360);
-            el.style.background = `hsla(${hue}, 100%, 50%, 0.5)`;
-            el.style.boxShadow = `0 0 10px hsla(${hue}, 100%, 50%, 0.8)`;
+            // Match Game Target Style
+            el.style.background = "rgba(0, 255, 136, 0.1)";
+            el.style.border = "2px solid #00ff88";
+            el.style.boxShadow = "0 0 8px #00ff88";
         }
 
-        el.style.left = (rCol * 40) + "px";
-        el.style.top = (rRow * 40) + "px";
+        // Center alignment: Grid is 50px, Item is 40px -> Offset by 5px
+        el.style.left = (rCol * GRID_SIZE + 5) + "px";
+        el.style.top = (rRow * GRID_SIZE + 5) + "px";
 
         gridBg.appendChild(el);
 
-        // Cleanup after animation (1.5s)
+        // Cleanup after animation (2s)
         setTimeout(() => {
             el.remove();
-        }, 1500);
+            activeParticles = activeParticles.filter(p => p.id !== particleId);
+        }, 2000);
 
-    }, 100); // New block every 100ms
+    }, 400); // Slower spawn rate for cleaner look
 }
 
 // Try to play BGM immediately (handle autoplay policy)

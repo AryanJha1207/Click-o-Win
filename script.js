@@ -281,8 +281,8 @@ function getRandomPosition(element) {
     const elWidth = element.offsetWidth || 60;
     const elHeight = element.offsetHeight || 60;
 
-    const maxLeft = containerWidth - elWidth;
-    const maxTop = containerHeight - elHeight;
+    const maxLeft = Math.max(0, containerWidth - elWidth);
+    const maxTop = Math.max(0, containerHeight - elHeight);
 
     let randomLeft, randomTop;
     let attempts = 0;
